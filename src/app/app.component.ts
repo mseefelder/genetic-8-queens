@@ -17,6 +17,8 @@ export class AppComponent {
 
 
   private initPop: number = 6;
+  private step: number = 0;
+  private stepName: string = "Cross";
   private boards: number[][] = [];
   private scores: number[] = [];
 
@@ -82,6 +84,25 @@ export class AppComponent {
     }
   }
 
+  doStep() {
+    this.step = this.step%3;
+
+    if(this.step === 0){
+      this.cross();
+      this.stepName = "Mutate";
+    }
+    else if(this.step === 1){
+      this.mutate();
+      this.stepName = "Select";
+    }
+    else if(this.step === 2){
+      this.select();
+      this.stepName = "Cross";
+    }
+
+    this.step++;
+  }
+
   cross () {
     let tempA: number[];
     let tempB: number[];
@@ -116,10 +137,30 @@ export class AppComponent {
   }
 
   select () {
-
+    let tempBoard = this.boards.splice(0,this.boards.length);
+    let tempScores = this.scores.splice(0,this.scores.length);
+    console.log(this.boards, this.scores);
+    /**/ 
+    let min = {index: -1, score: 64};
+    for (let i = 0; i<this.initPop; i++){
+      min = {index: -1, score: 64};
+      for (let b = 0; b < tempScores.length; b++) {
+        if(tempScores[b]<min.score){
+          min.score = tempScores[b];
+          min.index = b;
+        }
+      }
+      this.boards.push(tempBoard.splice(min.index,1)[0]);
+      this.scores.push(tempScores.splice(min.index,1)[0]);
+    }
+    /**/
+    this.scoreAll();
+    this.render();
   }
 
   render () {
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.clearRect(0, 0, 512, 512);
     let qPos = [0,0];
     for (let b = 0; b < this.boards.length; b++) {
       let column = b%6;
